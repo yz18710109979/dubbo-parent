@@ -38,15 +38,25 @@ import static org.apache.dubbo.common.constants.CommonConstants.TIMEOUT_KEY;
 
 /**
  * ExchangeReceiver
+ * 是基于协议头的信息交换通道。
  */
 final class HeaderExchangeChannel implements ExchangeChannel {
 
     private static final Logger logger = LoggerFactory.getLogger(HeaderExchangeChannel.class);
 
+    /**
+     * 通道的key值
+     */
     private static final String CHANNEL_KEY = HeaderExchangeChannel.class.getName() + ".CHANNEL";
 
+    /**
+     * 通道
+     */
     private final Channel channel;
 
+    /**
+     * 是否关闭
+     */
     private volatile boolean closed = false;
 
     HeaderExchangeChannel(Channel channel) {
@@ -60,10 +70,13 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         if (ch == null) {
             return null;
         }
+        // 获得通道中的HeaderExchangeChannel
         HeaderExchangeChannel ret = (HeaderExchangeChannel) ch.getAttribute(CHANNEL_KEY);
         if (ret == null) {
+            // 创建一个HeaderExchangeChannel实例
             ret = new HeaderExchangeChannel(ch);
             if (ch.isConnected()) {
+                // 加入属性值
                 ch.setAttribute(CHANNEL_KEY, ret);
             }
         }

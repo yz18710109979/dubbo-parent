@@ -42,32 +42,64 @@ import static org.apache.dubbo.remoting.Constants.IDLE_TIMEOUT_KEY;
 
 /**
  * AbstractServer
+ * 该类继承了AbstractEndpoint并且实现Server接口，是服务器抽象类。
+ * 重点实现了服务器的公共逻辑，比如发送消息，关闭通道，连接通道，断开连接等。并且抽象了打开和关闭服务器两个方法。
  */
 public abstract class AbstractServer extends AbstractEndpoint implements RemotingServer {
 
+    // 服务器线程名称
     protected static final String SERVER_THREAD_POOL_NAME = "DubboServerHandler";
     private static final Logger logger = LoggerFactory.getLogger(AbstractServer.class);
+
+    // 线程池
     ExecutorService executor;
+
+    // 服务地址，也就是本地地址
     private InetSocketAddress localAddress;
+
+    // 绑定地址
     private InetSocketAddress bindAddress;
+
+    // 最大可接受的连接数
     private int accepts;
+
+    // 空闲超时时间，单位是s
     private int idleTimeout;
 
     private ExecutorRepository executorRepository = ExtensionLoader.getExtensionLoader(ExecutorRepository.class).getDefaultExtension();
 
+    /**
+     * 构造函数大部分逻辑就是从url中取配置，存到缓存中，并且做了开启服务器的操作。具体的看上面的注释，还是比较清晰的。
+     * @param url
+     * @param handler
+     * @throws RemotingException
+     */
     public AbstractServer(URL url, ChannelHandler handler) throws RemotingException {
         super(url, handler);
+
+        // 从url中获得本地地址
         localAddress = getUrl().toInetSocketAddress();
 
+        // 从url配置中获得绑定的ip
         String bindIp = getUrl().getParameter(Constants.BIND_IP_KEY, getUrl().getHost());
+
+        // 从url配置中获得绑定的端口号
         int bindPort = getUrl().getParameter(Constants.BIND_PORT_KEY, getUrl().getPort());
+
+        // 判断url中配置anyhost是否为true或者判断host是否为不可用的本地Host
         if (url.getParameter(ANYHOST_KEY, false) || NetUtils.isInvalidLocalHost(bindIp)) {
             bindIp = ANYHOST_VALUE;
         }
         bindAddress = new InetSocketAddress(bindIp, bindPort);
+
+        // 从url中获取配置，默认值为0
         this.accepts = url.getParameter(ACCEPTS_KEY, DEFAULT_ACCEPTS);
+
+        // 从url中获取配置，默认600s
         this.idleTimeout = url.getParameter(IDLE_TIMEOUT_KEY, DEFAULT_IDLE_TIMEOUT);
         try {
+
+            // 开启服务器
             doOpen();
             if (logger.isInfoEnabled()) {
                 logger.info("Start " + getClass().getSimpleName() + " bind " + getBindAddress() + ", export " + getLocalAddress());
@@ -76,6 +108,7 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
             throw new RemotingException(url.toInetSocketAddress(), null, "Failed to bind " + getClass().getSimpleName()
                     + " on " + getLocalAddress() + ", cause: " + t.getMessage(), t);
         }
+        // 获得线程池
         executor = executorRepository.createExecutorIfAbsent(url);
     }
 
@@ -83,12 +116,18 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
 
     protected abstract void doClose() throws Throwable;
 
+    /**
+     * 该类中的reset方法做了三个值的重置，分别是最大可连接的客户端数量、空闲超时时间以及线程池的两个配置参数。
+     * 其中要注意核心线程数和最大线程数的区别。举个例子，核心线程数就像是工厂正式工，最大线程数，就是工厂临时工作量加大，请了一批临时工，临时工加正式工的和就是最大线程数，等这批任务结束后，临时工要辞退的，而正式工会留下。
+     * @param url
+     */
     @Override
     public void reset(URL url) {
         if (url == null) {
             return;
         }
         try {
+            // 重置accepts的值
             if (url.hasParameter(ACCEPTS_KEY)) {
                 int a = url.getParameter(ACCEPTS_KEY, 0);
                 if (a > 0) {
@@ -99,6 +138,7 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
             logger.error(t.getMessage(), t);
         }
         try {
+            // 重置idle.timeout的值
             if (url.hasParameter(IDLE_TIMEOUT_KEY)) {
                 int t = url.getParameter(IDLE_TIMEOUT_KEY, 0);
                 if (t > 0) {
@@ -109,6 +149,7 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
             logger.error(t.getMessage(), t);
         }
         executorRepository.updateThreadpool(url, executor);
+        // 重置url
         super.setUrl(getUrl().addParameters(url.getParameters()));
     }
 

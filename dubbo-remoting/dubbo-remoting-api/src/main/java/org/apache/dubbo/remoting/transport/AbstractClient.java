@@ -41,24 +41,49 @@ import static org.apache.dubbo.common.constants.CommonConstants.THREADPOOL_KEY;
 
 /**
  * AbstractClient
+ * 该类是客户端的抽象类，继承了AbstractEndpoint类，实现了Client接口，该类中也是做了客户端公用的重连逻辑，
+ * 抽象了打开客户端、关闭客户端、连接服务器、断开服务器连接以及获得通道方法
  */
 public abstract class AbstractClient extends AbstractEndpoint implements Client {
-
+    /**
+     * 客户端线程名称
+     */
     protected static final String CLIENT_THREAD_POOL_NAME = "DubboClientHandler";
     private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
+
+    /**
+     * 连接锁
+     */
     private final Lock connectLock = new ReentrantLock();
+
+
     private final boolean needReconnect;
+
+    /**
+     * 线程池
+     */
     protected volatile ExecutorService executor;
     private ExecutorRepository executorRepository = ExtensionLoader.getExtensionLoader(ExecutorRepository.class).getDefaultExtension();
 
+
+    /**
+     *该构造函数中做了一些属性值的设置，并且做了打开客户端和连接服务器的操作。
+     * @param url
+     * @param handler
+     * @throws RemotingException
+     */
     public AbstractClient(URL url, ChannelHandler handler) throws RemotingException {
         super(url, handler);
 
+        /**
+         * 从url中获得是否重连的配置，默认为false
+         */
         needReconnect = url.getParameter(Constants.SEND_RECONNECT_KEY, false);
 
         initExecutor(url);
 
         try {
+            // 打开客户端
             doOpen();
         } catch (Throwable t) {
             close();

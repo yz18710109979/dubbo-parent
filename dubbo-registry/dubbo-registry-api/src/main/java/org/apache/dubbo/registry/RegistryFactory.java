@@ -22,7 +22,7 @@ import org.apache.dubbo.common.extension.SPI;
 
 /**
  * RegistryFactory. (SPI, Singleton, ThreadSafe)
- *
+ *  注册中心的工厂接口，用来返回注册中心的对象
  * @see org.apache.dubbo.registry.support.AbstractRegistryFactory
  */
 @SPI("dubbo")

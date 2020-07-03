@@ -69,7 +69,7 @@ public interface ExchangeChannel extends Channel {
 
     /**
      * get message handler.
-     *
+     *信息交换处理器
      * @return message handler
      */
     ExchangeHandler getExchangeHandler();

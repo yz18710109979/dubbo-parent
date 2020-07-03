@@ -196,10 +196,10 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         serviceMetadata.setVersion(getVersion());
         serviceMetadata.setGroup(getGroup());
         serviceMetadata.setDefaultGroup(getGroup());
-        serviceMetadata.setServiceType(getInterfaceClass());
         serviceMetadata.setServiceInterfaceName(getInterface());
         serviceMetadata.setTarget(getRef());
 
+        // 是否延迟参数校验
         if (shouldDelay()) {
             DELAY_EXPORT_EXECUTOR.schedule(this::doExport, getDelay(), TimeUnit.MILLISECONDS);
         } else {
@@ -324,6 +324,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             repository.registerService(pathKey, interfaceClass);
             // TODO, uncomment this line once service key is unified
             serviceMetadata.setServiceKey(pathKey);
+            // 在doExportUrlsFor1Protocol中会把所有的相关属性封装到Map中，构造dubbo定义的统一数据模型URL,这个url会贯穿服务暴露和调用的整个流程
             doExportUrlsFor1Protocol(protocolConfig, registryURLs);
         }
     }
@@ -456,6 +457,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         }
 
         String scope = url.getParameter(SCOPE_KEY);
+        //配置为none不暴露
         // don't export when none is configured
         if (!SCOPE_NONE.equalsIgnoreCase(scope)) {
 

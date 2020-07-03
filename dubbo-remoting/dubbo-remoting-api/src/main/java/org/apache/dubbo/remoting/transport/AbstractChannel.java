@@ -24,6 +24,7 @@ import org.apache.dubbo.remoting.utils.PayloadDropper;
 
 /**
  * AbstractChannel
+ * 该类是通道的抽象类，该类里面做的逻辑很简单，具体的发送消息逻辑在它 的子类中实现。
  */
 public abstract class AbstractChannel extends AbstractPeer implements Channel {
 

@@ -22,6 +22,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * dubbo一次rpc过程
+ * 1. 调用某个服务首先会进入到动态代理。
+ */
 public class Application {
     /**
      * In order to make sure multicast registry works, need to specify '-Djava.net.preferIPv4Stack=true' before

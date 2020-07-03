@@ -18,6 +18,15 @@ package org.apache.dubbo.remoting.transport;
 
 import org.apache.dubbo.remoting.ChannelHandler;
 
+/**
+ * 该类继承了ChannelHandler，从它的名字可以看出是ChannelHandler的代表，
+ * 它就是作为装饰模式中的Component角色，后面讲到的AbstractChannelHandlerDelegate作为装饰模式中的Decorator角色。
+ */
 public interface ChannelHandlerDelegate extends ChannelHandler {
+
+    /**
+     * 获得通道
+     * @return
+     */
     ChannelHandler getHandler();
 }
