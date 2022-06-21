@@ -29,7 +29,7 @@
         <Project.verson>1.0-SNAPSHOT</Project.verson>
 
         <lombok.version>1.16.20</lombok.version>
-        <mysql-connector-java.version>5.1.38</mysql-connector-java.version>
+        <mysql-connector-java.version>8.0.28</mysql-connector-java.version>
         <mybatis-plus.version>2.1.8</mybatis-plus.version>
         <mybatisplus-spring-boot-starter.version>1.0.5</mybatisplus-spring-boot-starter.version>
         <!--<lmp-tool.version>2.0.1</lmp-tool.version>替换上面3个-->
